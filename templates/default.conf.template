@@ -1,5 +1,5 @@
 upstream backend {
-    server ${MICROSERVICE}:80;
+    server ${BACKEND}:80;
 }
 
 server {

@@ -6,7 +6,7 @@ services:
     ports:
       - "8081:80"
     environment:
-      - MICROSERVICE=microservice
+      - BACKEND=microservice
 
   microservice:
     image: kennethreitz/httpbin
