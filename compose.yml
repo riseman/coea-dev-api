@@ -4,11 +4,10 @@ services:
     volumes:
       - ./templates:/etc/nginx/templates
     ports:
-      - "8081:80"
+      - "80:80"
     environment:
       - BACKEND=microservice
 
   microservice:
     image: kennethreitz/httpbin
-    ports:
-      - "8080:80"
+
