@@ -1,10 +1,14 @@
 services:
   gateway:
     container_name: gateway
-    build:
-      dockerfile: Dockerfile
+    image: nginx
+    volumes:
+      - ./templates:/etc/nginx/templates
     ports:
       - "8081:81"
+    environment:
+      - GATEWAY_PORT=81
+      - MICROSERVICE_PORT=80
 
   microservice:
     container_name: microservice
