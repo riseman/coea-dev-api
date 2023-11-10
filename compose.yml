@@ -1,6 +1,5 @@
 services:
   apigateway:
-    container_name: apigateway
     image: nginx
     volumes:
       - ./templates:/etc/nginx/templates
@@ -10,7 +9,6 @@ services:
       - MICROSERVICE=microservice
 
   microservice:
-    container_name: microservice
     image: kennethreitz/httpbin
     ports:
       - "8080:80"
