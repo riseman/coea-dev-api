@@ -1,9 +1,9 @@
 upstream backend {
-    server microservice:${MICROSERVICE_PORT};
+    server ${MICROSERVICE}:80;
 }
 
 server {
-    listen ${APIGATEWAY_PORT};
+    listen 80;
 
     location / {
         proxy_pass http://backend;
