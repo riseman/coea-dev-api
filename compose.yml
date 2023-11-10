@@ -1,13 +1,13 @@
 services:
-  gateway:
-    container_name: gateway
+  apigateway:
+    container_name: apigateway
     image: nginx
     volumes:
       - ./templates:/etc/nginx/templates
     ports:
       - "8081:81"
     environment:
-      - GATEWAY_PORT=81
+      - APIGATEWAY_PORT=81
       - MICROSERVICE_PORT=80
 
   microservice:

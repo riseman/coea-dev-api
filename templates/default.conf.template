@@ -3,7 +3,7 @@ upstream backend {
 }
 
 server {
-    listen ${GATEWAY_PORT};
+    listen ${APIGATEWAY_PORT};
 
     location / {
         proxy_pass http://backend;
