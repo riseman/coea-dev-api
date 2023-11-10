@@ -1,9 +1,10 @@
 services:
   gateway:
     container_name: gateway
-    image: gateway
+    build:
+      dockerfile: Dockerfile
     ports:
-      - "80:8080"
+      - "8081:81"
 
   microservice:
     container_name: microservice
