@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    image: api-gateway
+    ports:
+    - "80:80"
+
+  httpbin:
+    container_name: microservice
+    image: kennethreitz/httpbin
+    ports:
+    - "8080:80"
