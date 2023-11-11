@@ -6,6 +6,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      AUTH_SERVER: authserver:8080
+      RESOURCE_SERVER: resourceserver:80
     ports:
       - "8080:8080"
 
