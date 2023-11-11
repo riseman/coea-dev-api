@@ -5,8 +5,6 @@ services:
       - ./templates:/etc/nginx/templates
     ports:
       - "80:80"
-    environment:
-      - BACKEND=microservice
 
   microservice:
     image: kennethreitz/httpbin
