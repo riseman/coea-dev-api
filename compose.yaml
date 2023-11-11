@@ -1,0 +1,23 @@
+services:
+  resourceserver:
+    image: kennethreitz/httpbin
+
+  apigateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:8080"
+
+  authserver:
+    image: jboss/keycloak
+    ports:
+      - "8081:8080"
+    volumes:
+      - keycloak_data:/opt/jboss/keycloak/standalone/data
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+
+volumes:
+  keycloak_data:

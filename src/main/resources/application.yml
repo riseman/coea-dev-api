@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    banner-mode: off
+
+  application:
+    name: gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://authserver:8080/auth/realms/myrealm/protocol/openid-connect/certs
+
+  cloud:
+    gateway:
+      routes:
+        - id: default
+          uri: http://resourceserver:80
+          predicates:
+            - Path=/**
