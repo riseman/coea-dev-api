@@ -1,7 +1,4 @@
 services:
-  resourceserver:
-    image: kennethreitz/httpbin
-
   apigateway:
     build:
       context: .
@@ -18,6 +15,10 @@ services:
     environment:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
+
+  resourceserver:
+    image: kennethreitz/httpbin
+
 
 volumes:
   keycloak_data:

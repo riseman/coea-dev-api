@@ -14,6 +14,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
+#          issuer-uri: http://authserver:8080/auth/realms/myrealm
           jwk-set-uri: http://authserver:8080/auth/realms/myrealm/protocol/openid-connect/certs
 
   cloud:
@@ -23,3 +24,5 @@ spring:
           uri: http://resourceserver:80
           predicates:
             - Path=/**
+          filters:
+            - DebugAccessToken
