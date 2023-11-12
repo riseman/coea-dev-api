@@ -1,4 +1,12 @@
 services:
+  envoyproxy:
+    image: envoyproxy/envoy:dev-d3464bfd6d247530e669688c79e99c7245299df7
+    ports:
+      - "10000:10000"
+      - "9902:9902"
+    volumes:
+      - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
+
   apigateway:
     build:
       context: api-gateway
