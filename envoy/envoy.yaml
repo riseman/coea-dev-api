@@ -22,6 +22,22 @@ static_resources:
                       - match: { prefix: "/" }
                         route: { cluster: cluster_0 }
               http_filters:
+                - name: envoy.filters.http.JwtAuthentication
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication
+                    providers:
+                      provider_0:
+                        remote_jwks:
+                          http_uri:
+                            uri: http://authserver:8080/auth/realms/myrealm/protocol/openid-connect/certs
+                            cluster: cluster_1
+                            timeout: 1s
+                    rules:
+                      - match:
+                          prefix: /
+                        requires:
+                          provider_name: provider_0                          
+                
                 - name: envoy.filters.http.router
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
@@ -32,9 +48,20 @@ static_resources:
       type: LOGICAL_DNS
       lb_policy: ROUND_ROBIN
       load_assignment:
-        cluster_name: resourceserver
+        cluster_name: resourceserver_cluster
         endpoints:
           - lb_endpoints:
               - endpoint:
                   address:
                     socket_address: { address: resourceserver, port_value: 80 }
+
+    - name: cluster_1
+      type: LOGICAL_DNS
+      connect_timeout: 500s
+      load_assignment:
+        cluster_name: authserver_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: authserver, port_value: 8080 }
