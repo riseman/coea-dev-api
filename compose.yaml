@@ -7,22 +7,22 @@ services:
     volumes:
       - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
 
-  apigateway:
-    build:
-      context: api-gateway
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
+#  apigateway:
+#    build:
+#      context: api-gateway
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080"
 
-  authserver:
-    image: jboss/keycloak
-    ports:
-      - "8081:8080"
-    volumes:
-      - keycloak_data:/opt/jboss/keycloak/standalone/data
-    environment:
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
+#  authserver:
+#    image: jboss/keycloak
+#    ports:
+#      - "8081:8080"
+#    volumes:
+#      - keycloak_data:/opt/jboss/keycloak/standalone/data
+#    environment:
+#      KEYCLOAK_USER: admin
+#      KEYCLOAK_PASSWORD: admin
 
   resourceserver:
     image: kennethreitz/httpbin
