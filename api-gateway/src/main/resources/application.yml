@@ -22,9 +22,3 @@ spring:
     gateway:
       default-filters:
         - DebugAccessToken
-
-      routes:
-        - id: default
-          uri: http://resourceserver:80
-          predicates:
-            - Path=/**
