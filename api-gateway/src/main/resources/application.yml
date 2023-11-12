@@ -1,8 +1,7 @@
 logging:
   level:
     root: INFO
-    org.springframework.cloud.gateway: INFO
-    org.springframework.security: DEBUG
+    com.example.gateway: DEBUG
 
 spring:
   main:
@@ -15,10 +14,4 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-#          issuer-uri: http://authserver:8080/auth/realms/myrealm
           jwk-set-uri: http://authserver:8080/auth/realms/myrealm/protocol/openid-connect/certs
-
-  cloud:
-    gateway:
-      default-filters:
-        - DebugAccessToken

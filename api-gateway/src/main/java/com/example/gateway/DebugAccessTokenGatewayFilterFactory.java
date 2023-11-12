@@ -17,7 +17,7 @@ public class DebugAccessTokenGatewayFilterFactory extends AbstractGatewayFilterF
         return (exchange, chain) -> exchange.getPrincipal()
             .cast(JwtAuthenticationToken.class)
             .map(token -> {
-                log.info("<TOKEN>: {}", token.getTokenAttributes());
+                log.debug("<TOKEN>: {}", token.getTokenAttributes());
                 return exchange;
             })
             .flatMap(chain::filter);
