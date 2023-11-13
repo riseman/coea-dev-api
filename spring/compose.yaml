@@ -5,6 +5,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:8080"
+    environment:
+      - SPRING_MAIN_BANNER-MODE=OFF
+      - SPRING_APPLICATION_NAME=api-gateway
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI=http://authserver:8080/auth/realms/myrealm/protocol/openid-connect/certs
+      - LOGGING_LEVEL_ROOT=INFO
+      - LOGGING_LEVEL_COM_EXAMPLE_GATEWAY=DEBUG
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://monitorserver:9411/api/v2/spans
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
 
   authserver:
     image: jboss/keycloak
@@ -13,13 +21,18 @@ services:
     volumes:
       - keycloak_data:/opt/jboss/keycloak/standalone/data
     environment:
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
 
   resourceserver:
     image: kennethreitz/httpbin
     ports:
       - "8082:80"
+
+  monitorserver:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
 
 
 volumes:
