@@ -4,7 +4,7 @@ services:
       context: api-gateway
       dockerfile: Dockerfile
     ports:
-      - "80:8080"
+      - 80:8080
     environment:
       - SPRING_MAIN_BANNER-MODE=OFF
       - SPRING_APPLICATION_NAME=apigateway
@@ -17,7 +17,7 @@ services:
   authserver:
     image: jboss/keycloak
     ports:
-      - "8081:8080"
+      - 8081:8080
     volumes:
       - keycloak_data:/opt/jboss/keycloak/standalone/data
     environment:
@@ -27,12 +27,12 @@ services:
   resourceserver:
     image: kennethreitz/httpbin
     ports:
-      - "8082:80"
+      - 8082:80
 
   monitorserver:
     image: openzipkin/zipkin
     ports:
-      - "9411:9411"
+      - 9411:9411
 
 
 volumes:

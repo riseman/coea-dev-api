@@ -18,7 +18,8 @@ static_resources:
                   name: local_route
                   virtual_hosts:
                     - name: virtual_host
-                      domains: ["*"]
+                      domains: 
+                        - "*"
                       routes:
                         - match: { prefix: "/" }
                           route: { cluster: cluster_0 }
@@ -45,7 +46,7 @@ static_resources:
   clusters:
     - name: cluster_0
       type: LOGICAL_DNS
-      connect_timeout: 0.25s
+      connect_timeout: 0.5s
       lb_policy: ROUND_ROBIN
       load_assignment:
         cluster_name: resourceserver_cluster
