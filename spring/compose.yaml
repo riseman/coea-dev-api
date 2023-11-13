@@ -1,18 +1,10 @@
 services:
-  envoyproxy:
-    image: envoyproxy/envoy:dev-d3464bfd6d247530e669688c79e99c7245299df7
-    ports:
-      - "80:10000"
-      - "81:9902"
-    volumes:
-      - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
-
   apigateway:
     build:
       context: api-gateway
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "80:8080"
 
   authserver:
     image: jboss/keycloak

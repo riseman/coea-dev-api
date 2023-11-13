@@ -1,0 +1,13 @@
+services:
+  gateway:
+    container_name: gateway
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "8081:81"
+
+  microservice:
+    container_name: microservice
+    image: kennethreitz/httpbin
+    ports:
+      - "8080:80"
