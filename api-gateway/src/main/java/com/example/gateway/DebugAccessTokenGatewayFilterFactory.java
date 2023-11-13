@@ -13,7 +13,6 @@ public class DebugAccessTokenGatewayFilterFactory extends AbstractGatewayFilterF
 
     @Override
     public GatewayFilter apply(Object config) {
-
         return (exchange, chain) -> exchange.getPrincipal()
             .cast(JwtAuthenticationToken.class)
             .map(token -> {

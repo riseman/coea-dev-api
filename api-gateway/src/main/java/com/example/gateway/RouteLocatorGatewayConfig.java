@@ -14,7 +14,6 @@ public class RouteLocatorGatewayConfig {
 
     private final AbstractGatewayFilterFactory<Object> debugAccessTokenGatewayFilterFactory;
 
-
     @Bean
     public RouteLocator gatewayRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
