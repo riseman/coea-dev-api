@@ -7,7 +7,7 @@ services:
       - "80:8080"
     environment:
       - SPRING_MAIN_BANNER-MODE=OFF
-      - SPRING_APPLICATION_NAME=api-gateway
+      - SPRING_APPLICATION_NAME=apigateway
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI=http://authserver:8080/auth/realms/myrealm/protocol/openid-connect/certs
       - LOGGING_LEVEL_ROOT=INFO
       - LOGGING_LEVEL_COM_EXAMPLE_GATEWAY=DEBUG
