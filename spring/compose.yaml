@@ -7,12 +7,30 @@ services:
       - 80:8080
     environment:
       - SPRING_MAIN_BANNER-MODE=OFF
-      - SPRING_APPLICATION_NAME=apigateway
+      - SPRING_APPLICATION_NAME=api-gateway
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI=http://authserver:8080/auth/realms/myrealm/protocol/openid-connect/certs
+      - SPRING_CONFIG_IMPORT=configserver:http://configserver:8080
+      - SPRING_CONFIG_ACTIVATE_ON-PROFILE=master
       - LOGGING_LEVEL_ROOT=INFO
       - LOGGING_LEVEL_COM_EXAMPLE_GATEWAY=DEBUG
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://monitorserver:9411/api/v2/spans
       - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+
+  configserver:
+    build:
+      context: config-server
+      dockerfile: Dockerfile
+    ports:
+      - 81:8080
+    environment:
+      - SPRING_MAIN_BANNER-MODE=OFF
+      - SPRING_APPLICATION_NAME=config-server
+      - LOGGING_LEVEL_ROOT=INFO
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=http://gitserver:3000/myuser/config-server.git
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME=myuser
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD=mypassword
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT-LABEL=master
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCH-PATHS={application}
 
   authserver:
     image: jboss/keycloak
@@ -34,6 +52,15 @@ services:
     ports:
       - 9411:9411
 
+  gitserver:
+    image: gitea/gitea:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - gitea_data:/data
+      - gitea_data:/app/gitea/custom
+
 
 volumes:
   keycloak_data:
+  gitea_data:
