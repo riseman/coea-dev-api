@@ -1,7 +1,7 @@
 package com.example.gateway;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.GatewayFilterFactory;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RouteLocatorGatewayConfig {
 
-    private final AbstractGatewayFilterFactory<Object> debugAccessTokenGatewayFilterFactory;
+    private final GatewayFilterFactory<Object> debugAccessTokenGatewayFilterFactory;
 
     @Bean
     public RouteLocator gatewayRouteLocator(RouteLocatorBuilder builder) {
