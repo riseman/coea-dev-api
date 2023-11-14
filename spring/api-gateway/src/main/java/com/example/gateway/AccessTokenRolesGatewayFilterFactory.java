@@ -1,7 +1,6 @@
 package com.example.gateway;
 
 import lombok.Getter;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -50,20 +49,20 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
                     .cast(JwtAuthenticationToken.class)
                     .map(token -> {
                         val tokenConfig = tokenConfig(token);
-                        log.debug("<token-roles> {} {}", tokenConfig.getUserName(), tokenConfig.getRoles());
+                        log.debug("<token-roles> {} {}", tokenConfig.userName(), tokenConfig.roles());
 
                         val filterConfig = filterConfig(config);
-                        log.debug("<filter-roles> {} {}", filterConfig.getStrategy(), filterConfig.getRoles());
+                        log.debug("<filter-roles> {} {}", filterConfig.strategy(), filterConfig.roles());
 
-                        switch (filterConfig.getStrategy()) {
+                        switch (filterConfig.strategy()) {
                             case ANY:
-                                if (! containsAny(tokenConfig.getRoles(), filterConfig.getRoles())) {
+                                if (! containsAny(tokenConfig.roles(), filterConfig.roles())) {
                                     log.debug("Не пересекаются роли");
                                     throw new AccessDeniedException("Не пересекаются роли");
                                 }
                                 break;
                             case ALL:
-                                if (! containsAll(tokenConfig.getRoles(), filterConfig.getRoles())) {
+                                if (! containsAll(tokenConfig.roles(), filterConfig.roles())) {
                                     log.debug("Не представлены все роли");
                                     throw new AccessDeniedException("Не представлены все роли");
                                 }
@@ -128,17 +127,7 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
         }
     }
 
-    @Value
-    private static class TokenConfig {
+    private record TokenConfig(String userName, List<String> roles) { }
 
-        String userName;
-        List<String> roles;
-    }
-
-    @Value
-    private static class FilterConfig {
-
-        Strategy strategy;
-        List<String> roles;
-    }
+    private record FilterConfig(Strategy strategy, List<String> roles) { }
 }
