@@ -48,9 +48,9 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
                     .cast(JwtAuthenticationToken.class)
                     .map(principal -> {
                         val token = tokenRoles(principal);
-                        val client = token.getLeft();
+                        val uname = token.getLeft();
                         val tokenRoles = token.getRight();
-                        log.debug("<token-roles> {} {}", client, tokenRoles);
+                        log.debug("<token-roles> {} {}", uname, tokenRoles);
 
                         val filter = filterRoles(config);
                         val strategy = filter.getLeft();
@@ -72,7 +72,6 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
                                 break;
                         }
 
-                        log.debug("<client-matched> {}", client);
                         return exchange;
                     })
                     .flatMap(chain::filter);
@@ -91,10 +90,11 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
         try {
             val attributes = (Map<String, Object>) token.getTokenAttributes();
 
-            val name = (String) attributes.get("azp");
+            val username = (String) attributes.get("preferred_username");
             val access = (Map<String, Object>) attributes.get("resource_access");
-            val client = (Map<String, Object>) access.get(name);
-            return Pair.of(name, (List<String>) client.get("roles"));
+            val client = (Map<String, Object>) access.get((String) attributes.get("azp"));
+
+            return Pair.of(username, (List<String>) client.get("roles"));
         } catch (RuntimeException e) {
             throw new AccessDeniedException("Нет ролей клиента", e);
         }
@@ -108,6 +108,7 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
             throw new AccessDeniedException("Нет стратегии фильтра");
 
         val roles = name.split(" ");
+
         return Pair.of(config.getStrategy(), List.of(roles));
     }
 
