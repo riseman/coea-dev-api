@@ -14,7 +14,7 @@ services:
       - LOGGING_LEVEL_ROOT=INFO
       - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY=INFO
       - LOGGING_LEVEL_COM_EXAMPLE_GATEWAY=DEBUG
-      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://monitorserver:9411/api/v2/spans
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tracingserver:9411/api/v2/spans
       - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
 
   configserver:
@@ -48,7 +48,7 @@ services:
     ports:
       - 8082:80
 
-  monitorserver:
+  tracingserver:
     image: openzipkin/zipkin
     ports:
       - 9411:9411
