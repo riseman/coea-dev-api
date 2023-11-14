@@ -1,0 +1,30 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: reader
+          uri: http://resourceserver:80
+          predicates:
+            - Path=/reader/**
+          filters:
+            - StripPrefix=1
+            - AccessTokenRoles=reader
+
+        - id: writer
+          uri: http://resourceserver:80
+          predicates:
+            - Path=/writer/**
+          filters:
+            - StripPrefix=1
+            - AccessTokenRoles=writer
+
+        - id: admin
+          uri: http://resourceserver:80
+          predicates:
+            - Path=/admin/**
+          filters:
+            - StripPrefix=1
+            - name: AccessTokenRoles
+              args:
+                name: writer reader moderator
+                strategy: ALL
