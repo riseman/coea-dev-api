@@ -50,7 +50,7 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
                         val token = tokenRoles(principal);
                         val client = token.getLeft();
                         val tokenRoles = token.getRight();
-                        log.debug("<token-roles> {}", tokenRoles);
+                        log.debug("<token-roles> {} {}", client, tokenRoles);
 
                         val filter = filterRoles(config);
                         val strategy = filter.getLeft();
