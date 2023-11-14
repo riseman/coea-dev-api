@@ -1,10 +1,9 @@
 package com.example.gateway;
 
-import com.jayway.jsonpath.PathNotFoundException;
+import com.nimbusds.jose.util.Pair;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.json.JSONObject;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -16,11 +15,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
-import static com.jayway.jsonpath.JsonPath.parse;
-import static java.lang.String.format;
 import static org.apache.commons.collections4.CollectionUtils.containsAll;
-import static org.apache.commons.collections4.CollectionUtils.intersection;
+import static org.apache.commons.collections4.CollectionUtils.containsAny;
 import static org.springframework.cloud.gateway.support.GatewayToStringStyler.filterToStringCreator;
 
 
@@ -40,7 +38,7 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
     }
 
     @Override
-    public GatewayFilter apply(Config config) {
+    public GatewayFilter apply(AccessTokenRolesGatewayFilterFactory.Config config) {
 
         return new GatewayFilter() {
 
@@ -48,42 +46,33 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
             public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
                 return exchange.getPrincipal()
                     .cast(JwtAuthenticationToken.class)
-                    .map(token -> {
-                        log.debug("<access-token attributes> {}", token.getTokenAttributes());
+                    .map(principal -> {
+                        val token = tokenRoles(principal);
+                        val client = token.getLeft();
+                        val tokenRoles = token.getRight();
+                        log.debug("<token-roles> {}", tokenRoles);
 
-                        val attributes = token.getTokenAttributes();
-                        val client = (String) attributes.get("azp");
+                        val filter = filterRoles(config);
+                        val strategy = filter.getLeft();
+                        val filterRoles = filter.getRight();
+                        log.debug("<filter-roles> {} {}", strategy, filterRoles);
 
-                        val json = new JSONObject(attributes);
-                        val context = parse(json.toString());
-
-                        try {
-                            List<String> roles = context.read(format("$['resource_access']['%s']['roles'][*]", client));
-                            if (roles == null) throw new AccessDeniedException("Нет ролей токена");
-
-                            val line = config.getName();
-                            val strategy = config.getStrategy();
-                            if (line == null || strategy == null) throw new AccessDeniedException("Нет ролей фильтра");
-
-                            val names = List.of(line.split(" "));
-                            switch (strategy) {
-                                case ANY:
-                                    if (intersection(roles, names).isEmpty()) {
-                                        log.debug("Не пересекаются роли");
-                                        throw new AccessDeniedException("Не пересекаются роли");
-                                    }
-                                    break;
-                                case ALL:
-                                    if (containsAll(names, roles)) {
-                                        log.debug("Не представлены все роли");
-                                        throw new AccessDeniedException("Не представлены все роли");
-                                    }
-                                    break;
-                            }
-                        } catch (PathNotFoundException e) {
-                            throw new AccessDeniedException("Нет ролей токена", e);
+                        switch (strategy) {
+                            case ANY:
+                                if (! containsAny(tokenRoles, filterRoles)) {
+                                    log.debug("Не пересекаются роли");
+                                    throw new AccessDeniedException("Не пересекаются роли");
+                                }
+                                break;
+                            case ALL:
+                                if (! containsAll(tokenRoles, filterRoles)) {
+                                    log.debug("Не представлены все роли");
+                                    throw new AccessDeniedException("Не представлены все роли");
+                                }
+                                break;
                         }
 
+                        log.debug("<client-matched> {}", client);
                         return exchange;
                     })
                     .flatMap(chain::filter);
@@ -96,6 +85,32 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
             }
         };
     }
+
+    @SuppressWarnings("unchecked")
+    Pair<String, List<String>> tokenRoles(JwtAuthenticationToken token) {
+        try {
+            val attributes = (Map<String, Object>) token.getTokenAttributes();
+
+            val name = (String) attributes.get("azp");
+            val access = (Map<String, Object>) attributes.get("resource_access");
+            val client = (Map<String, Object>) access.get(name);
+            return Pair.of(name, (List<String>) client.get("roles"));
+        } catch (RuntimeException e) {
+            throw new AccessDeniedException("Нет ролей клиента", e);
+        }
+    }
+
+    Pair<Strategy, List<String>> filterRoles(Config config) {
+        val name = config.getName(); if (name == null)
+            throw new AccessDeniedException("Нет ролей фильтра");
+
+        val strategy = config.getStrategy(); if (strategy == null)
+            throw new AccessDeniedException("Нет стратегии фильтра");
+
+        val roles = name.split(" ");
+        return Pair.of(config.getStrategy(), List.of(roles));
+    }
+
 
     public enum Strategy {
         ANY, ALL
