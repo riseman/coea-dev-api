@@ -1,7 +1,7 @@
 package com.example.gateway;
 
-import com.nimbusds.jose.util.Pair;
 import lombok.Getter;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -16,7 +16,9 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
+import static com.example.gateway.AccessTokenRolesGatewayFilterFactory.Strategy.ANY;
 import static org.apache.commons.collections4.CollectionUtils.containsAll;
 import static org.apache.commons.collections4.CollectionUtils.containsAny;
 import static org.springframework.cloud.gateway.support.GatewayToStringStyler.filterToStringCreator;
@@ -46,26 +48,22 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
             public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
                 return exchange.getPrincipal()
                     .cast(JwtAuthenticationToken.class)
-                    .map(principal -> {
-                        val token = tokenRoles(principal);
-                        val uname = token.getLeft();
-                        val tokenRoles = token.getRight();
-                        log.debug("<token-roles> {} {}", uname, tokenRoles);
+                    .map(token -> {
+                        val tokenConfig = tokenConfig(token);
+                        log.debug("<token-roles> {} {}", tokenConfig.getUserName(), tokenConfig.getRoles());
 
-                        val filter = filterRoles(config);
-                        val strategy = filter.getLeft();
-                        val filterRoles = filter.getRight();
-                        log.debug("<filter-roles> {} {}", strategy, filterRoles);
+                        val filterConfig = filterConfig(config);
+                        log.debug("<filter-roles> {} {}", filterConfig.getStrategy(), filterConfig.getRoles());
 
-                        switch (strategy) {
+                        switch (filterConfig.getStrategy()) {
                             case ANY:
-                                if (! containsAny(tokenRoles, filterRoles)) {
+                                if (! containsAny(tokenConfig.getRoles(), filterConfig.getRoles())) {
                                     log.debug("Не пересекаются роли");
                                     throw new AccessDeniedException("Не пересекаются роли");
                                 }
                                 break;
                             case ALL:
-                                if (! containsAll(tokenRoles, filterRoles)) {
+                                if (! containsAll(tokenConfig.getRoles(), filterConfig.getRoles())) {
                                     log.debug("Не представлены все роли");
                                     throw new AccessDeniedException("Не представлены все роли");
                                 }
@@ -86,7 +84,7 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
     }
 
     @SuppressWarnings("unchecked")
-    Pair<String, List<String>> tokenRoles(JwtAuthenticationToken token) {
+    TokenConfig tokenConfig(JwtAuthenticationToken token) {
         try {
             val attributes = (Map<String, Object>) token.getTokenAttributes();
 
@@ -94,22 +92,24 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
             val access = (Map<String, Object>) attributes.get("resource_access");
             val client = (Map<String, Object>) access.get((String) attributes.get("azp"));
 
-            return Pair.of(username, (List<String>) client.get("roles"));
+            return new TokenConfig(username, (List<String>) client.get("roles"));
         } catch (RuntimeException e) {
             throw new AccessDeniedException("Нет ролей клиента", e);
         }
     }
 
-    Pair<Strategy, List<String>> filterRoles(Config config) {
+    FilterConfig filterConfig(Config config) {
         val name = config.getName(); if (name == null)
             throw new AccessDeniedException("Нет ролей фильтра");
 
         val strategy = config.getStrategy(); if (strategy == null)
             throw new AccessDeniedException("Нет стратегии фильтра");
 
-        val roles = name.split(" ");
+        val roles = Stream.of(name.split(" "))
+            .map(String::trim)
+            .toList();
 
-        return Pair.of(config.getStrategy(), List.of(roles));
+        return new FilterConfig(config.getStrategy(), roles);
     }
 
 
@@ -120,11 +120,25 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
     @Getter
     public static class Config extends NameConfig {
 
-        private Strategy strategy = Strategy.ANY;
+        private Strategy strategy = ANY;
 
         public Config setStrategy(Strategy strategy) {
             this.strategy = strategy;
             return this;
         }
+    }
+
+    @Value
+    private static class TokenConfig {
+
+        String userName;
+        List<String> roles;
+    }
+
+    @Value
+    private static class FilterConfig {
+
+        Strategy strategy;
+        List<String> roles;
     }
 }
