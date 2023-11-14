@@ -1,6 +1,7 @@
 package com.example.gateway;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -12,12 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.example.gateway.AccessTokenRolesGatewayFilterFactory.Strategy.ANY;
+import static java.util.Arrays.asList;
 import static org.apache.commons.collections4.CollectionUtils.containsAll;
 import static org.apache.commons.collections4.CollectionUtils.containsAny;
 import static org.springframework.cloud.gateway.support.GatewayToStringStyler.filterToStringCreator;
@@ -35,7 +36,7 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
 
     @Override
     public List<String> shortcutFieldOrder() {
-        return Arrays.asList(NAME_KEY, STRATEGY_KEY);
+        return asList(NAME_KEY, STRATEGY_KEY);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
                     .cast(JwtAuthenticationToken.class)
                     .map(token -> {
                         val tokenConfig = tokenConfig(token);
-                        log.debug("<token-roles> {} {}", tokenConfig.userName(), tokenConfig.roles());
+                        log.debug("<token-roles> {} {}", tokenConfig.user(), tokenConfig.roles());
 
                         val filterConfig = filterConfig(config);
                         log.debug("<filter-roles> {} {}", filterConfig.strategy(), filterConfig.roles());
@@ -77,7 +78,8 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
             @Override
             public String toString() {
                 return filterToStringCreator(AccessTokenRolesGatewayFilterFactory.this)
-                    .append(config.getName(), config.getStrategy()).toString();
+                    .append(config.getName(), config.getStrategy())
+                    .toString();
             }
         };
     }
@@ -86,7 +88,6 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
     TokenConfig tokenConfig(JwtAuthenticationToken token) {
         try {
             val attributes = (Map<String, Object>) token.getTokenAttributes();
-
             val username = (String) attributes.get("preferred_username");
             val access = (Map<String, Object>) attributes.get("resource_access");
             val client = (Map<String, Object>) access.get((String) attributes.get("azp"));
@@ -117,17 +118,13 @@ public class AccessTokenRolesGatewayFilterFactory extends AbstractGatewayFilterF
     }
 
     @Getter
+    @Setter
     public static class Config extends NameConfig {
 
         private Strategy strategy = ANY;
-
-        public Config setStrategy(Strategy strategy) {
-            this.strategy = strategy;
-            return this;
-        }
     }
 
-    private record TokenConfig(String userName, List<String> roles) { }
+    private record TokenConfig(String user, List<String> roles) { }
 
     private record FilterConfig(Strategy strategy, List<String> roles) { }
 }
