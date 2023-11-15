@@ -6,16 +6,16 @@ services:
     ports:
       - 80:8080
     environment:
-      - SPRING_MAIN_BANNER-MODE=OFF
-      - SPRING_APPLICATION_NAME=api-gateway
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI=http://auth-server:8080/auth/realms/myrealm/protocol/openid-connect/certs
-      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8080
-      - SPRING_CONFIG_ACTIVATE_ON-PROFILE=master
-      - LOGGING_LEVEL_ROOT=INFO
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY=INFO
-      - LOGGING_LEVEL_COM_EXAMPLE_GATEWAY=DEBUG
-      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tracing-server:9411/api/v2/spans
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      - spring.main.banner-mode=OFF
+      - spring.application.name=api-gateway
+      - spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://auth-server:8080/auth/realms/myrealm/protocol/openid-connect/certs
+      - spring.config.import=configserver:http://config-server:8080
+      - spring.config.activate.on-profile=master
+      - logging.level.root=INFO
+      - logging.level.org.springframework.cloud.gateway=INFO
+      - logging.level.com.example.gateway=DEBUG
+      - management.zipkin.tracing.endpoint=http://tracing-server:9411/api/v2/spans
+      - management.tracing.sampling.probability=1.0
 
   config-server:
     build:
@@ -24,14 +24,14 @@ services:
     ports:
       - 81:8080
     environment:
-      - SPRING_MAIN_BANNER-MODE=OFF
-      - SPRING_APPLICATION_NAME=config-server
-      - LOGGING_LEVEL_ROOT=INFO
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=http://git-server:3000/myuser/config-server.git
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME=myuser
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD=mypassword
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT-LABEL=master
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCH-PATHS={application}
+      - spring_main_banner-mode=OFF
+      - spring_application_name=config-server
+      - logging_level_root=INFO
+      - spring_cloud_config_server_git_uri=http://git-server:3000/myuser/config-server.git
+      - spring_cloud_config_server_git_username=myuser
+      - spring_cloud_config_server_git_password=mypassword
+      - spring_cloud_config_server_git_default-label=master
+      - spring_cloud_config_server_git_search-paths={application}
 
   auth-server:
     image: jboss/keycloak
