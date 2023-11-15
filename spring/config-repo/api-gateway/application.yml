@@ -3,7 +3,7 @@ spring:
     gateway:
       routes:
         - id: reader
-          uri: http://resourceserver:80
+          uri: http://resource-server:80
           predicates:
             - Path=/reader/**
           filters:
@@ -11,7 +11,7 @@ spring:
             - AccessTokenRoles=reader
 
         - id: writer
-          uri: http://resourceserver:80
+          uri: http://resource-server:80
           predicates:
             - Path=/writer/**
           filters:
@@ -19,7 +19,7 @@ spring:
             - AccessTokenRoles=writer
 
         - id: admin
-          uri: http://resourceserver:80
+          uri: http://resource-server:80
           predicates:
             - Path=/admin/**
           filters:
