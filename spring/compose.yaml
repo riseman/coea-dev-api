@@ -24,14 +24,14 @@ services:
     ports:
       - 81:8080
     environment:
-      - spring_main_banner-mode=OFF
-      - spring_application_name=config-server
-      - logging_level_root=INFO
-      - spring_cloud_config_server_git_uri=http://git-server:3000/myuser/config-server.git
-      - spring_cloud_config_server_git_username=myuser
-      - spring_cloud_config_server_git_password=mypassword
-      - spring_cloud_config_server_git_default-label=master
-      - spring_cloud_config_server_git_search-paths={application}
+      - spring.main.banner-mode=OFF
+      - spring.application.name=config-server
+      - logging.level.root=INFO
+      - spring.cloud.config.server.git.uri=http://git-server:3000/myuser/config-server.git
+      - spring.cloud.config.server.git.username=myuser
+      - spring.cloud.config.server.git.password=mypassword
+      - spring.cloud.config.server.git.default-label=master
+      - spring.cloud.config.server.git.search-paths={application}
 
   auth-server:
     image: jboss/keycloak
