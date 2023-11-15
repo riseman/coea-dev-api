@@ -8,7 +8,6 @@ spring:
             - Path=/reader/**
           filters:
             - StripPrefix=1
-            - AccessTokenRoles=reader
 
         - id: writer
           uri: http://resourceserver:80
